@@ -6,9 +6,9 @@ import re
 def find_occurances_in_paragraph(paragraph, search):
 	return [m.start() for m in re.finditer(search, paragraph.text)]
 
-def highlight_range(paragraph, start, end):
+def apply_format_to_range(paragraph, start, end, format_func):
 	for run in get_target_runs(paragraph, start, end):
-		run.font.highlight_color = WD_COLOR_INDEX.RED
+		format_func(run)
 
 def get_target_runs(paragraph, start, end):
 	targets = []
@@ -89,16 +89,11 @@ def copy_format_manual(runA, runB):
 
 doc = Document("highlight_test.docx")
 
-"""for paragraph in doc.paragraphs:
-	template_run = paragraph.runs[0]
-	for run in paragraph.runs:
-		copy_format_manual(template_run, run)"""
-
 for paragraph in doc.paragraphs:
 	search = "test"
 	print(find_occurances_in_paragraph(paragraph, search))
+	format_func = lambda x:x.font.__setattr__('highlight_color', WD_COLOR_INDEX.RED)
 	for start in find_occurances_in_paragraph(paragraph, search):
-		highlight_range(paragraph, start, start + len(search))
-	#highlightTextInParagraph(paragraph, "test")
+		apply_format_to_range(paragraph, start, start + len(search), format_func)
 
 doc.save("Result.docx")
